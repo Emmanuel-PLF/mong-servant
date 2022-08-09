@@ -1,0 +1,145 @@
+name:                mongo-servant
+version:             0.0.0.1
+synopsis:            Brief example on using persistent with servant and mongoDB
+description:         Brief example on using persistent with servant and mongoDB
+license:             MIT
+license-file:        LICENSE
+author:              Emmanuel PINEAU
+maintainer:          epineau.lf@gmail.com
+copyright:           2022 Emmanuel PINEAU
+category:            Web
+build-type:          Simple
+cabal-version:       1.18
+
+source-repository head
+    type:
+        git
+    location:
+        https://www.github.com/Emmanuel-PLF/mong-servant
+
+executable perservant
+    main-is:
+        Main.hs
+    build-depends:
+        base
+      , mongo-servant
+      , wai
+      , warp
+      , monad-logger
+      , safe
+      , safe-exceptions
+    --  , monad-metrics
+    --  , wai-middleware-metrics
+      , wai-cors
+      , microlens
+    --  , ekg >= 0.4.0.15
+    --  , ekg-core >= 0.1.1.7
+      , say
+    hs-source-dirs:
+        app
+    default-language:
+        Haskell2010
+    ghc-options:
+        -threaded -rtsopts -with-rtsopts=-T -fwarn-unused-imports
+
+
+library
+    default-language:
+        Haskell2010
+    hs-source-dirs:
+        src
+    exposed-modules:
+        Config
+      , Server
+      , Database
+      , Api
+ --     , Api.User
+      , Api.Users
+      , Logger
+      , Types.BCrypt
+      , Types.Instances
+      , Types.Token
+      , Types.User
+      , Utils.Aeson
+      , Query.User
+      , Metrics.Metrics
+
+
+    build-depends:
+        base
+      , aeson 
+      , aeson-pretty
+      , bytestring
+      , clock
+      , containers
+      , cryptonite
+      , ekg-wai
+      , ekg-core >= 0.1.1.7
+      , exceptions
+      , fast-logger
+      , foreign-store
+      , hashable
+      , katip >= 0.5.0.2 
+      , microlens
+      , microlens-th
+      , monad-control
+      , monad-logger
+   -- , monad-metrics
+      , mtl
+      , network
+      , servant-openapi3
+      , openapi3
+      , persistent
+      , persistent-template
+      , persistent-mongoDB >= 2.13.0.0
+      , mongoDB
+      , wai
+      , safe
+      , safe-exceptions
+      , say
+      , servant
+      , servant-server
+      , servant-auth-server
+      , time
+      , text
+      , transformers
+      , template-haskell
+      , unordered-containers
+      , uuid
+      , wai
+      , wai-extra
+    --, wai-middleware-metrics
+      , wai-cors
+      , warp
+      , resource-pool
+      , yaml
+    ghc-options:
+        -fwarn-unused-imports
+
+--test-suite servant-persistent-test
+--    type:
+--        exitcode-stdio-1.0
+--    hs-source-dirs:
+--        test
+--    main-is:
+--        Spec.hs
+--    other-modules:
+--        ApiSpec
+--        UserDbSpec
+--    build-depends:
+--        base
+--      , persistent == 2.11.0.2
+--      , servant-persistent
+--      , servant
+--      , wai
+--      , servant-server
+--      , QuickCheck
+--      , hspec
+--      , mtl
+--      , transformers
+--      , text
+--      , monad-metrics
+--    ghc-options:
+--        -threaded -rtsopts -with-rtsopts=-N -fwarn-unused-imports
+--    default-language:
+--        Haskell2010
