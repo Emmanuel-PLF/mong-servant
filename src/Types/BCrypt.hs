@@ -23,7 +23,7 @@ import Control.Monad.Except (MonadIO, liftIO)
 --import Control.Monad.Reader (MonadReader, ReaderT, asks)
 import qualified Crypto.KDF.BCrypt as BC
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Text (Text)
+import Data.Text
 import Data.Text.Encoding (decodeUtf8, encodeUtf8)
 --import Database.Persist.MongoDB (PersistField)
 import Database.Persist.Sql as S

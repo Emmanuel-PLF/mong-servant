@@ -15,7 +15,7 @@ module Api.Users where
 --import ClassyPrelude hiding (hash)
 import Config (AppT (..), Config(..))
 import Control.Monad.Except (MonadIO)
-import Control.Monad.Logger (logDebugNS)
+import Control.Monad.Logger (logDebugNS, logErrorNS, logWarnNS, logInfoNS)
 import Control.Monad.Reader (asks, liftIO)
 --import Control.Monad.Catch (throwM)
 import Database.Persist.MongoDB 
@@ -128,12 +128,13 @@ allUsers _ = do
 singleUser :: MonadIO m => Text -> AppT m UserResponse
 singleUser str = do
   increment M.hSingleUserC
-  logDebugNS "web" "singleUser"
   maybeUser <- D.runDb (selectFirst [Md.UserName ==. str] [])
   case maybeUser of
-    Nothing ->
+    Nothing -> do
+      logWarnNS "singleUser" "Unknown User"
       throwError err404
-    Just dbUser ->
+    Just dbUser -> do
+      logInfoNS "singleUser" "Find"
       mkUserResponse dbUser
 
 --------------------------------------------------------------------------------
@@ -199,7 +200,9 @@ mkToken pass hashed dbUser = do
   -- If the password isn't valid, throw a 401
   -- TODO - maybe validatePassword should return an Either so that when
   -- validation fails internally, we can throw a 500.
-  if isValid then pure () else throwError err401
+  if isValid then pure () else do
+                              logErrorNS "mkToken" "Validation failed" 
+                              throwError err401
   logDebugNS "mkToken" "Validate Password" 
   pure $ Token (D.userUuid dbUser)
 
@@ -231,10 +234,11 @@ mkUserResponse ::
   AppT m UserResponse
 mkUserResponse
   (Entity _ dbUser) = do
+  logDebugNS "mkUsersResponse" $ "user name: " <> D.userName dbUser
     --timeot <- asks jwtTimeout
     --tok <- mkToken (dbUser ^. password) hashedPw dbUser
     --jwt <- mkJWT tok timeot
-    pure $
+  pure $
       UserResponse
         (D.userEmail dbUser)
         (D.userName dbUser)
