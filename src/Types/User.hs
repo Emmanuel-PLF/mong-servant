@@ -33,9 +33,9 @@ import Data.Text (Text)
 import Data.Typeable (Typeable)
 import Database.Persist.MongoDB (PersistField)
 import GHC.Generics (Generic)
-import Lens.Micro (mapped, (&), (?~))
+--import Lens.Micro (mapped, (&), (?~))
 import Lens.Micro.TH (makeFields)
-import Types.Token (JWTText)
+--import Types.Token (JWTText)
 import Utils.Aeson
   ( gCustomParseJSON,
     gCustomToJSON,
@@ -166,6 +166,17 @@ instance FromJSON UserResponse where
 --    genericDeclareNamedSchema defaultSchemaOptions proxy
 --      & mapped . schema . description ?~ "Infos sur un utilisateur"
 
+-- | All User JSON response.
+newtype  UserResponseAll = UserResponseAll
+  { userResponseAllUsers :: [UserResponse]
+  }
+  deriving (Generic, Typeable)
+
+instance ToJSON UserResponseAll where
+  toJSON = gCustomToJSON $ gSnakeCase defaultOptions
+
+instance FromJSON UserResponseAll where
+  parseJSON = gCustomParseJSON $ gSnakeCase defaultOptions
 --------------------------------------------------------------------------------
 
 -- | User JSON response.

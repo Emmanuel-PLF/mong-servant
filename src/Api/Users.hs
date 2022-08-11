@@ -20,7 +20,7 @@ import Control.Monad.Reader (asks, liftIO)
 --import Control.Monad.Catch (throwM)
 import Database.Persist.MongoDB 
  (
-    Entity (Entity),
+    Entity (..),
     PersistQueryRead (selectFirst),
     selectList,
     (==.)
@@ -77,7 +77,7 @@ usersHandler = protected :<|> unprotected
 
 -- | Type-level representation of the endpoints protected by 'Auth'.
 type ProtectedApi =
-  "users" :> Get '[JSON] [UserResponse]
+  "users" :> Get '[JSON] UserResponseAll
     :<|> "users" 
       :> "register"
       :> ReqBody '[JSON] UserResponse
@@ -117,12 +117,13 @@ register _ userReg = do
             mkUserResponse dbUser
 
 -- | Returns all users in the database.
-allUsers :: MonadIO m => Token -> AppT m [UserResponse]
+allUsers :: MonadIO m => Token -> AppT m UserResponseAll
 allUsers _ = do
   increment M.hAllUsersC
   logDebugNS "web" "allUsers"
   au <- D.runDb (selectList [] [])
-  mapM mkUserResponse au
+  aur <- mapM (mkUserResponse . entityVal) au
+  pure (UserResponseAll aur) 
 
 -- | Returns a user by name or throws a 404 error.
 singleUser :: MonadIO m => Text -> AppT m UserResponse
@@ -133,7 +134,7 @@ singleUser str = do
     Nothing -> do
       logWarnNS "singleUser" "Unknown User"
       throwError err404
-    Just dbUser -> do
+    Just (Entity _ dbUser) -> do
       logInfoNS "singleUser" "Find"
       mkUserResponse dbUser
 
@@ -224,25 +225,30 @@ mkJWT token duration = do
 -- logging to 'Katip' with the given @logAction@ function.
 mkTokenResponse :: MonadIO m => Token -> AppT m UserToken
 mkTokenResponse tk = do
-  timeot <- asks jwtTimeout
+  --timeot <- asks jwtTimeout
   --jwt <- mkJWT tk timeot
   pure $ UserToken "SUCCESS"
 
 mkUserResponse ::
   MonadIO m =>
-  Entity D.User ->
+  D.User ->
   AppT m UserResponse
 mkUserResponse
-  (Entity _ dbUser) = do
+  dbUser = do
   logDebugNS "mkUsersResponse" $ "user name: " <> D.userName dbUser
     --timeot <- asks jwtTimeout
     --tok <- mkToken (dbUser ^. password) hashedPw dbUser
     --jwt <- mkJWT tok timeot
+  --let ua = D.userAddress dbUser >>= convAddressDBUserAddress
   pure $
       UserResponse
         (D.userEmail dbUser)
         (D.userName dbUser)
-        Nothing
+        Nothing --password
         (D.userBio dbUser)
         (D.userImage dbUser)
-        Nothing
+        (D.userAddress dbUser >>= convAddressDBUserAddress) -- address
+
+convAddressDBUserAddress :: D.Address -> Maybe UserAddress
+convAddressDBUserAddress (D.Address f s z) = 
+  Just $ UserAddress f s z  

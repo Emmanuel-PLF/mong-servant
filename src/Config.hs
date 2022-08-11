@@ -9,7 +9,8 @@ module Config
   ( Config (..),
     ConfigApp (..),
     Environment (..),
-    AppT (..)
+    AppT (..),
+    convTextEnv
   )
 where
 
@@ -134,7 +135,10 @@ data Environment
   | Production
   deriving (Eq, Show, Read)
 
-
+convTextEnv :: T.Text -> Environment
+convTextEnv "development" = Development
+convTextEnv "test" = Test
+convTextEnv "production" = Production
 
 -- | A basic 'ConnectionString' for local/test development. Pass in either
 -- @""@ for 'Development' or @"test"@ for 'Test'.

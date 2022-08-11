@@ -9,10 +9,11 @@ module Server where
 
 import Api (app)
 import Api.Users (withHandle)
+import qualified Database as D
 import Data.Maybe (fromMaybe)
 import qualified Config as C
 import qualified Data.Pool as Pool
-import Data.Text (Text)
+import Data.Text (Text, unpack)
 import qualified Data.Text as Text
 --import Data.Typeable (typeOf)
 --import Models (doMigrations)
@@ -57,16 +58,16 @@ import Servant.Auth.Server
 
 data ConfigApp = ConfigApp
   { cLogger :: L.Config,
-    cServer :: C.ConfigApp
-    -- , cDatabase   :: Database.Config
+    cServer :: C.ConfigApp,
+    cDatabase :: D.Config
   }
 
 instance Monoid ConfigApp where
   mempty =
     ConfigApp
       { cLogger = mempty,
-        cServer = mempty
-        --, cDatabase   = mempty
+        cServer = mempty,
+        cDatabase   = mempty
       }
 
 instance Semigroup ConfigApp where
@@ -74,14 +75,15 @@ instance Semigroup ConfigApp where
     ConfigApp
       { cLogger = cLogger l <> cLogger r,
         cServer = cServer l <> cServer r
-        --, cDatabase   = cDatabase   l <> cDatabase   r
+        , cDatabase   = cDatabase   l <> cDatabase   r
       }
 
 instance A.FromJSON ConfigApp where
-  parseJSON = A.withObject "FromJSON Fugacious.Main.Server.Config" $ \o ->
+  parseJSON = A.withObject "Mongo-Servant.Server" $ \o ->
     ConfigApp
       <$> o A..:? "logger" A..!= mempty
       <*> o A..:? "server" A..!= mempty
+      <*> o A..:? "database" A..!= mempty
 
 -- <*> o A..:? "database"    A..!= mempty
 
@@ -132,16 +134,17 @@ withConfig f action = do
   say "acquireConfig"
   --port <- lookupSetting "PORT" 8081
 
-  env <- lookupSetting "ENV" C.Development
-  say $ "on env: " <> tshow env
+  --env <- lookupSetting "ENV" C.Development
   errOrConfig <- Yaml.decodeFileEither f
   ConfigApp {..} <- either (fail . show) return errOrConfig
   let port = fromMaybe 8000 $ C.cPort cServer
+      env = C.convTextEnv $ fromMaybe "development" $ C.cEnv cServer
   say $ "on port:" <> tshow port
+  say $ "on env: " <> tshow env
   --store <- newStore @AppMetrics
   bracket L.defaultLogEnv (\x -> say "closing katip scribes" >> Katip.closeScribes x) $ \logEnv -> do
     say "got log env"
-    !pool <- makePool env logEnv `onException` say "exception in makePool"
+    !pool <- makePool cDatabase env logEnv `onException` say "exception in makePool"
     myKey <- generateKey
     say "got pool "
     bracket (forkServer "localhost" 8083) (\x -> say "closing ekg" >> do killThread $ serverThreadId x) $ \ekgServer -> do
@@ -223,12 +226,16 @@ katipLogger env app req respond = runKatipT env $ do
 -- insecure connection string. The 'Production' environment acquires the
 -- information from environment variables that are set by the keter
 -- deployment application.
-makePool :: C.Environment -> LogEnv -> IO ConnectionPool
-makePool C.Test env =
-  runKatipT env (createMongoDBPool "servantTest" "localhost" (PortNumber 27017) Nothing (envPool C.Test) 5 2000)
-makePool C.Development env =
-  runKatipT env $ createMongoDBPool "servantTest" "localhost" (PortNumber 27017) Nothing (envPool C.Development) 5 2000
-makePool C.Production env = do
+makePool :: D.Config -> C.Environment -> LogEnv -> IO ConnectionPool
+makePool db env lenv =  
+      let serv = fromMaybe "error" (D.cDBName db)
+          host = unpack . fromMaybe "error" $ D.cHostname db
+      in runKatipT lenv (createMongoDBPool serv host (PortNumber 27017) Nothing (envPool env) 5 2000)
+    -- If we don't have a correct database configuration, we can't
+    -- handle that in the program, so we throw an IO exception. This is
+    -- one example where using an exception is preferable to 'Maybe' or
+    -- 'Either'.
+--makePool _ C.Production env = do
   -- This function makes heavy use of the 'MaybeT' monad transformer, which
   -- might be confusing if you're not familiar with it. It allows us to
   -- combine the effects from 'IO' and the effect of 'Maybe' into a single
@@ -236,31 +243,19 @@ makePool C.Production env = do
   -- @a@. If we just had @IO (Maybe a)@, then binding out of the IO would
   -- give us a @Maybe a@, which would make the code quite a bit more
   -- verbose.
-  pool <- runMaybeT $ do
-    let keys =
-          [ "host=",
-            "port=",
-            "user=",
-            "password=",
-            "dbname="
-          ]
-        envs =
-          [ "PGHOST",
-            "PGPORT",
-            "PGUSER",
-            "PGPASS",
-            "PGDATABASE"
-          ]
-    envVars <- traverse (MaybeT . lookupEnv) envs
-    let prodStr = BS.intercalate " " . zipWith (<>) keys $ BS.pack <$> envVars
-    lift $ runKatipT env $ createMongoDBPool "servantMong" "localhost" (PortNumber 27017) Nothing (envPool C.Production) 5 2000
-  case pool of
+--  pool <- runMaybeT $ do
+--    let keys = [ "host=", "port=","user=", "password=", "dbname="]
+--        envs = [ "PGHOST","PGPORT","PGUSER","PGPASS","PGDATABASE"]
+--    envVars <- traverse (MaybeT . lookupEnv) envs
+--    let prodStr = BS.intercalate " " . zipWith (<>) keys $ BS.pack <$> envVars
+--    lift $ runKatipT env $ createMongoDBPool "servantMong" "localhost" (PortNumber 27017) Nothing (envPool C.Production) 5 2000
+--  case pool of
     -- If we don't have a correct database configuration, we can't
     -- handle that in the program, so we throw an IO exception. This is
     -- one example where using an exception is preferable to 'Maybe' or
     -- 'Either'.
-    Nothing -> throwIO (userError "Database Configuration not present in environment.")
-    Just a -> return a
+--    Nothing -> throwIO (userError "Database Configuration not present in environment.")
+--    Just a -> return a
 
 -- | The number of pools to use for a given environment.
 envPool :: C.Environment -> Int

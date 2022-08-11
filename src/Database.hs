@@ -45,8 +45,15 @@ User json
     email Text
     bio   Text  Maybe
     image Text  Maybe
+    address Address Maybe
     uuid      UUID
     deriving Eq Show
+
+Address json
+   first Text
+   second Text
+   zipcode Int
+   deriving Eq Show
 
 Password json
     hash      BCrypt
@@ -75,7 +82,6 @@ type DB a = Action IO a
 data Config = Config
   { cDBName :: Maybe T.Text,
     cHostname :: Maybe T.Text
-    -- , cDatabase   :: Database.Config
   } deriving (Show)
 
 instance Monoid Config where
@@ -83,7 +89,6 @@ instance Monoid Config where
     Config
       { cDBName = empty,
         cHostname = empty
-        --, cDatabase   = mempty
       }
 
 instance Semigroup Config where
@@ -91,7 +96,6 @@ instance Semigroup Config where
     Config
       { cDBName = cDBName l <|> cDBName r,
         cHostname = cHostname l <|> cHostname r
-        --, cDatabase   = cDatabase   l <> cDatabase   r
       }
 
 instance A.FromJSON Config where

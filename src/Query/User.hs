@@ -16,13 +16,20 @@ import Data.Text (Text)
 import Data.Time.Clock (getCurrentTime)
 --import Data.UUID (UUID)
 import Data.UUID.V4 (nextRandom)
-import Database.Persist
-  ( Entity (Entity),
-    PersistStoreWrite (insert),
-  )
-import Database.Persist.MongoDB ()
+--mport Database.Persist
+--  ( Entity (Entity),
+    --PersistStoreWrite (insert),
+--  )
+import Database.Persist.MongoDB 
+ (
+    Entity (..),
+    PersistQueryRead (selectFirst),
+    selectList,
+    (==.)
+ )
+import Database.Persist.Class
 import Database.Persist.TH ()
-import Database (DB(..), Password (Password), User (User))
+import Database (DB(..), Password (Password), User (User), Address (..))
 import Types.BCrypt (hashPassword)
 
 import Types.User
@@ -30,26 +37,26 @@ import Types.User
 --------------------------------------------------------------------------------
 
 -- | Insert a new user into the database.
-insertUser :: Text -> UserResponse -> DB (Entity User)
+insertUser :: Text -> UserResponse -> DB User
 insertUser uHPass (UserResponse uEmail uName uPass uBio uIm uAdd) = do
   now <- liftIO getCurrentTime
   newUuid <- liftIO nextRandom
 
   hashedPw <- hashPassword uHPass
-  userKey <- insert $ User uName uEmail uBio Nothing newUuid
-
+  (Entity userKey user) <- insertEntity $ User uName uEmail uBio Nothing (uAdd >>= convUserAddressDBAddress) newUuid
   _ <- insert $ Password hashedPw userKey
+  pure user
 
-  --userRec <- get userKey
-  pure (Entity userKey $ User uName uEmail uBio Nothing newUuid)
-  --pure userKey
 
+-- | ConvertUserResponseAddress to Address DB
+convUserAddressDBAddress :: UserAddress -> Maybe Address
+convUserAddressDBAddress (UserAddress f s z) = 
+  Just $ Address f s z  
 --------------------------------------------------------------------------------
---getAllUsers :: DB [Entity User]
---getAllUsers =
---  select $
---    from $ \dbUser -> do
---      pure dbUser
+--getAllUsers :: DB [User]
+--getAllUsers = do
+--  au <- selectList [] []
+--  pure au
 --
 ---- | Retrieve a user and their hashed password from the database.
 --getUserByEmail :: Text -> DB (Maybe (Entity User, Entity Password))
