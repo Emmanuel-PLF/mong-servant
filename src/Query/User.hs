@@ -10,9 +10,9 @@ module Query.User where
 
 -- Local imports.
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
+--import Control.Monad.IO.Class (MonadIO (liftIO))
 --import Data.Maybe (listToMaybe)
-import Data.Text (Text)
+--import Data.Text (Text)
 import Data.Time.Clock (getCurrentTime)
 --import Data.UUID (UUID)
 import Data.UUID.V4 (nextRandom)
@@ -23,12 +23,12 @@ import Data.UUID.V4 (nextRandom)
 import Database.Persist.MongoDB 
  (
     Entity (..),
-    PersistQueryRead (selectFirst),
-    selectList,
-    (==.)
+    --PersistQueryRead (selectFirst),
+    --selectList,
+   -- (==.)
  )
 import Database.Persist.Class
-import Database.Persist.TH ()
+--import Database.Persist.TH ()
 import Database (DB(..), Password (Password), User (User), Address (..))
 import Types.BCrypt (hashPassword)
 

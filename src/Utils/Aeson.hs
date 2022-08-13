@@ -26,9 +26,9 @@ module Utils.Aeson where
 import Data.Aeson
 import Data.Aeson.Key
 import Data.Aeson.Types (Parser)
-import Data.Text (Text)
-import Data.Typeable (Proxy (..), Typeable, typeRep)
-import GHC.Generics (Generic, Rep)
+--import Data.Text (Text)
+import Data.Typeable (typeRep)
+import GHC.Generics (Rep)
 
 -------------------------------------------------------------------------------
 

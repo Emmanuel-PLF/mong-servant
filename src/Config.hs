@@ -14,14 +14,14 @@ module Config
   )
 where
 
-import Control.Applicative (empty, (<|>))
+--import Control.Applicative (empty, (<|>))
 import Control.Concurrent (ThreadId)
-import Control.Monad.Except (ExceptT, MonadError)
-import Control.Monad.IO.Class (MonadIO )
+import Control.Monad.Except (MonadError)
+--import Control.Monad.IO.Class (MonadIO )
 import Control.Monad.Logger (MonadLogger (..))
 import System.Metrics
 import Metrics.Metrics
-import Control.Monad.Reader (MonadReader, ReaderT, asks)
+--import Control.Monad.Reader (MonadReader, ReaderT, asks)
 import qualified Data.Aeson as A
 import qualified Data.Text as T
 import Data.Time (NominalDiffTime)
@@ -42,8 +42,8 @@ import Servant.Auth.Server (CookieSettings, JWTSettings)
 
 data ConfigApp = ConfigApp
   { cPort :: Maybe Int,
-    cDomain :: Maybe T.Text,
-    cEnv    :: Maybe T.Text
+    cDomain :: Maybe Text,
+    cEnv    :: Maybe Text
     -- , cDatabase   :: Database.Config
   } deriving (Show)
 

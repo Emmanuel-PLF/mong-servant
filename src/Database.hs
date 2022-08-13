@@ -17,12 +17,12 @@
 
 module Database where
 
-import Control.Applicative (empty, (<|>))
+--import Control.Applicative (empty, (<|>))
 import qualified Config as C
-import Control.Monad.Reader (MonadIO, MonadReader, asks, liftIO)
+--import Control.Monad.Reader (MonadIO, MonadReader, asks, liftIO)
 import Data.Aeson as A
-import Data.Text (Text)
-import qualified Data.Text as T
+--import Data.Text (Text)
+--import qualified Data.Text as T
 --import Data.Time (UTCTime)
 import Data.UUID (UUID)
 --import Database.Persist.Sql (SqlPersistT, runMigration, runSqlPool)
@@ -80,8 +80,8 @@ type DB a = Action IO a
 
 
 data Config = Config
-  { cDBName :: Maybe T.Text,
-    cHostname :: Maybe T.Text
+  { cDBName :: Maybe Text,
+    cHostname :: Maybe Text
   } deriving (Show)
 
 instance Monoid Config where

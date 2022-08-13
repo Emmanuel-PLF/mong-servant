@@ -32,12 +32,12 @@ import Katip
       mkHandleScribe,
       ColorStrategy(ColorIfTerminal) )
 import qualified Data.Aeson            as A
-import qualified System.IO as IO
+--import qualified System.IO as IO
 --import qualified Data.Text             as T
 import qualified System.Log.FastLogger as FastLogger
 --import           Data.Monoid              ((<>))
-import           Prelude               hiding (error, log)
-import Control.Applicative ((<|>), empty)
+--import           Prelude               hiding (error, log)
+--import Control.Applicative ((<|>), empty)
 
 data Config = Config
     { cPath      :: Maybe FilePath
@@ -64,7 +64,7 @@ data Handle = Handle
 
 defaultLogEnv :: IO LogEnv
 defaultLogEnv = do
-    handleScribe <- mkHandleScribe ColorIfTerminal IO.stdout (permitItem DebugS) V2
+    handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem DebugS) V2
     env <- initLogEnv "mongo-servant" "production"
     registerScribe "stdout" handleScribe defaultScribeSettings env
 

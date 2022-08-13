@@ -16,10 +16,9 @@ module Metrics.Metrics
 
 
 import           System.Metrics.Counter         as C
-import           System.Metrics.Distribution    as Distribution
-import           System.Metrics.Gauge           as Gauge
-import           System.Metrics.Label           as Label
-
+--import           System.Metrics.Distribution    as Distribution
+--import           System.Metrics.Gauge           as Gauge
+--import           System.Metrics.Label           as Label
 
 data MHandle = MHandle
   { hSingleUserC :: C.Counter,

@@ -29,10 +29,10 @@ import Data.Aeson.Types (Parser)
 --    defaultSchemaOptions,
 --    genericDeclareNamedSchema,
 --  )
-import Data.Text (Text)
-import Data.Typeable (Typeable)
+--import Data.Text (Text)
+--import Data.Typeable (Typeable)
 import Database.Persist.MongoDB (PersistField)
-import GHC.Generics (Generic)
+--import GHC.Generics (Generic)
 --import Lens.Micro (mapped, (&), (?~))
 import Lens.Micro.TH (makeFields)
 --import Types.Token (JWTText)

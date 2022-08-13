@@ -14,7 +14,7 @@ import qualified Database as D
 import qualified Config as C
 import qualified Data.Pool as Pool
 --import Data.Text (Text, unpack)
-import qualified Data.Text as Text
+--import qualified Data.Text as Text
 --import Data.Typeable (typeOf)
 --import Models (doMigrations)
 --import           Control.Monad.Trans      (liftIO)
@@ -22,20 +22,15 @@ import qualified Data.Yaml as Yaml
 import qualified Katip
 import qualified Logger as L
 --import Network.Wai.Metrics (metrics, registerWaiMetrics)
-import Safe (readMay)
+--import Safe (readMay)
 import Say (say)
 --import System.Environment (lookupEnv)
 import Control.Concurrent ( killThread)
-import Control.Monad.IO.Class (MonadIO (liftIO))
+--import Control.Monad.IO.Class (MonadIO (liftIO))
 --import Metrics.Metrics
 --import System.Metrics
-import Control.Monad.Trans.Class (MonadTrans (lift))
-import Control.Monad.Trans.Maybe
-  ( MaybeT (..),
-    runMaybeT,
-  )
+--import Control.Monad.Trans.Class (MonadTrans (lift))
 import qualified Data.Aeson as A
-import qualified Data.ByteString.Char8 as BS
 import Database.MongoDB.Connection (PortID (PortNumber))
 import Database.Persist.MongoDB
   ( ConnectionPool,

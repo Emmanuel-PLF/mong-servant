@@ -20,7 +20,7 @@ where
 --import           ClassyPrelude        hiding (hash)
 
 -- Local imports.
-import Control.Monad.Except (MonadIO, liftIO)
+--import Control.Monad.Except (MonadIO, liftIO)
 --import Control.Monad.Reader (MonadReader, ReaderT, asks)
 import qualified Crypto.KDF.BCrypt as BC
 import Data.Aeson (FromJSON, ToJSON)

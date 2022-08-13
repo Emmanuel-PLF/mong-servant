@@ -26,8 +26,6 @@ import Data.Aeson
   )
 --import qualified Data.ByteString.Lazy as BSL
 import qualified Data.UUID as DU
-import Data.Text
-import GHC.Generics
 import Servant.Auth.Server (FromJWT, ToJWT)
 
 -------------------------------------------------------------------------------
