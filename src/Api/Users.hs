@@ -14,9 +14,9 @@ module Api.Users where
 -- Prelude.
 --import ClassyPrelude hiding (hash)
 import Config (AppT (..), Config(..))
-import Control.Monad.Except (MonadIO)
+--import Control.Monad.Except (MonadIO)
 import Control.Monad.Logger (logDebugNS, logErrorNS, logWarnNS, logInfoNS)
-import Control.Monad.Reader (asks, liftIO)
+--import Control.Monad.Reader (asks, liftIO)
 --import Control.Monad.Catch (throwM)
 import Database.Persist.MongoDB 
  (
@@ -39,9 +39,9 @@ import Servant.Auth.Server
 import Types.BCrypt
 import Types.Token
 --import Types.User hiding (userBio, userImage)
-import Data.Text (Text)
-import Data.Text.Encoding
-import qualified Data.ByteString.Lazy as BSL
+--import Data.Text (Text)
+--import Data.Text.Encoding
+--import qualified Data.ByteString.Lazy as BSL
 --import Data.Time (NominalDiffTime, addUTCTime)
 import Data.Time.Clock
 import qualified Database as D
@@ -89,13 +89,13 @@ type ProtectedApi =
 adminLoginApi :: Proxy (UsersApi '[JWT])
 adminLoginApi = Proxy
 
-withHandle :: SM.Store SM.AllMetrics -> (M.Handle -> IO a) -> IO a
+withHandle :: SM.Store SM.AllMetrics -> (M.MHandle -> IO a) -> IO a
 withHandle s f = do
   auc <- SM.createCounter (SM.Metric @"perservant.allusers") () s
   suc <- SM.createCounter (SM.Metric @"perservant.singleuser") () s
   cuc <- SM.createCounter (SM.Metric @"perservant.createuser") () s
   luc <- SM.createCounter (SM.Metric @"perservant.login") () s
-  f $ M.Handle suc auc cuc luc
+  f $ M.MHandle suc auc cuc luc
 
 
 -- | Check authentication status and dispatch the request to the appropriate
@@ -184,7 +184,7 @@ login userLogin = do
 
 
 -- | increment a counter
-increment :: MonadIO m => (Handle -> Counter) -> AppT m ()
+increment :: MonadIO m => (M.MHandle -> Counter) -> AppT m ()
 increment f = do
   h <- asks hMetrics
   liftIO $ inc $ f h 
@@ -194,14 +194,14 @@ increment f = do
 -- compared to the hash in the database; throw 401 if the user's password
 -- is invalid
 mkToken :: MonadIO m => Text -> BCrypt -> D.User -> AppT m Token
-mkToken pass hashed dbUser = do
+mkToken passw hashed dbUser = do
   -- Validate the stored hash against the plaintext password
-  isValid <- validatePassword pass hashed
+  isValid <- validatePassword passw hashed
 
   -- If the password isn't valid, throw a 401
   -- TODO - maybe validatePassword should return an Either so that when
   -- validation fails internally, we can throw a 500.
-  if isValid then pure () else do
+  if isValid then pass else do
                               logErrorNS "mkToken" "Validation failed" 
                               throwError err401
   logDebugNS "mkToken" "Validate Password" 
@@ -219,7 +219,7 @@ mkJWT token duration = do
   case tryJWT of
 --    -- If JWT generation failed, log the error and throw a 500
     Left e -> throwError err500
-    Right lazyJWT -> pure . JWTText . decodeUtf8 . BSL.toStrict $ lazyJWT
+    Right lazyJWT -> pure . JWTText . decodeUtf8 @Text @LByteString $ lazyJWT
 --
 -- | Generate a 'UserResponse' with an expiring token (defined in 'Config'),
 -- logging to 'Katip' with the given @logAction@ function.

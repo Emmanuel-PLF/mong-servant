@@ -10,10 +10,10 @@ module Server where
 import Api (app)
 import Api.Users (withHandle)
 import qualified Database as D
-import Data.Maybe (fromMaybe)
+--import Data.Maybe (fromMaybe)
 import qualified Config as C
 import qualified Data.Pool as Pool
-import Data.Text (Text, unpack)
+--import Data.Text (Text, unpack)
 import qualified Data.Text as Text
 --import Data.Typeable (typeOf)
 --import Models (doMigrations)
@@ -24,7 +24,7 @@ import qualified Logger as L
 --import Network.Wai.Metrics (metrics, registerWaiMetrics)
 import Safe (readMay)
 import Say (say)
-import System.Environment (lookupEnv)
+--import System.Environment (lookupEnv)
 import Control.Concurrent ( killThread)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 --import Metrics.Metrics
@@ -139,8 +139,8 @@ withConfig f action = do
   ConfigApp {..} <- either (fail . show) return errOrConfig
   let port = fromMaybe 8000 $ C.cPort cServer
       env = C.convTextEnv $ fromMaybe "development" $ C.cEnv cServer
-  say $ "on port:" <> tshow port
-  say $ "on env: " <> tshow env
+  say $ "on port:" <> show port
+  say $ "on env: " <> show env
   --store <- newStore @AppMetrics
   bracket L.defaultLogEnv (\x -> say "closing katip scribes" >> Katip.closeScribes x) $ \logEnv -> do
     say "got log env"
@@ -182,30 +182,30 @@ shutdownApp cfg = do
   -- so, it'll hopefully get torn down when async exception gets thrown
   -- at metrics server process
   --killThread (C.configEkgServer cfg)
-  pure ()
+  pass
 
 -- | Looks up a setting in the environment, with a provided default, and
 -- 'read's that information into the inferred type.
-lookupSetting :: Read a => String -> a -> IO a
-lookupSetting env def = do
-  maybeValue <- lookupEnv env
-  case maybeValue of
-    Nothing ->
-      return def
-    Just str ->
-      maybe (handleFailedRead str) return (readMay str)
-  where
-    handleFailedRead str =
-      error $
-        mconcat
-          [ "Failed to read [[",
-            str,
-            "]] for environment variable ",
-            env
-          ]
+--lookupSetting :: Read a => String -> a -> IO a
+--lookupSetting env def = do
+--  maybeValue <- lookupEnv env
+--  case maybeValue of
+--    Nothing ->
+--      return def
+--    Just str ->
+--      maybe (handleFailedRead str) return (readMay str)
+--  where
+--    handleFailedRead str =
+--      error $
+--        toText . mconcat
+--          [ "Failed to read [[",
+--           str,
+--            "]] for environment variable ",
+--           env
+--          ]
 
-tshow :: Show a => a -> Text
-tshow = Text.pack . show
+--tshow :: Show a => a -> Text
+--tshow = toText @ByteString . show
 
 -- | This returns a 'Middleware' based on the environment that we're in.
 setLogger :: C.Environment -> Middleware
@@ -229,7 +229,7 @@ katipLogger env app req respond = runKatipT env $ do
 makePool :: D.Config -> C.Environment -> LogEnv -> IO ConnectionPool
 makePool db env lenv =  
       let serv = fromMaybe "error" (D.cDBName db)
-          host = unpack . fromMaybe "error" $ D.cHostname db
+          host = toString . fromMaybe "error" $ D.cHostname db
       in runKatipT lenv (createMongoDBPool serv host (PortNumber 27017) Nothing (envPool env) 5 2000)
     -- If we don't have a correct database configuration, we can't
     -- handle that in the program, so we throw an IO exception. This is

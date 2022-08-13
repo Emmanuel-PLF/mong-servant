@@ -64,7 +64,7 @@ gSnakeCase :: forall proxy a. Typeable a => Options -> proxy a -> Options
 gSnakeCase opts _ = opts {fieldLabelModifier = gTrim}
   where
     gTrim :: String -> String
-    gTrim = camelTo2 '_' . (drop . length . show $ typeRep $ Proxy @a)
+    gTrim = camelTo2 '_' . (drop . length . show @String $ typeRep $ Proxy @a)
 
 --------------------------------------------------------------------------------
 

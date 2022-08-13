@@ -1,3 +1,4 @@
+cabal-version:       2.2
 name:                mongo-servant
 version:             0.0.0.1
 synopsis:            Brief example on using persistent with servant and mongoDB
@@ -9,7 +10,6 @@ maintainer:          epineau.lf@gmail.com
 copyright:           2022 Emmanuel PINEAU
 category:            Web
 build-type:          Simple
-cabal-version:       1.18
 
 source-repository head
     type:
@@ -21,7 +21,7 @@ executable perservant
     main-is:
         Main.hs
     build-depends:
-        base
+        base >= 4.14 && < 4.17
       , mongo-servant
       , wai
       , warp
@@ -32,9 +32,14 @@ executable perservant
     --  , wai-middleware-metrics
       , wai-cors
       , microlens
+      , relude
     --  , ekg >= 0.4.0.15
     --  , ekg-core >= 0.1.1.7
       , say
+    mixins:
+        base hiding (Prelude)
+      , relude (Relude as Prelude)
+      , relude  
     hs-source-dirs:
         app
     default-language:
@@ -66,7 +71,7 @@ library
 
 
     build-depends:
-        base
+        base >= 4.14 && < 4.17
       , aeson 
       , aeson-pretty
       , bytestring
@@ -94,6 +99,7 @@ library
       , persistent-mongoDB >= 2.13.0.0
       , mongoDB
       , wai
+      , relude
       , safe
       , safe-exceptions
       , say
@@ -113,6 +119,10 @@ library
       , warp
       , resource-pool
       , yaml
+    mixins:
+        base hiding (Prelude)
+      , relude (Relude as Prelude)
+      , relude  
     ghc-options:
         -fwarn-unused-imports
 

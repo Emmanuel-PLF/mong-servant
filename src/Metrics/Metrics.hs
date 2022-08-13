@@ -11,7 +11,7 @@
 
 module Metrics.Metrics
     ( -- * The Type Class
-    Handle (..) 
+    MHandle (..) 
     ) where
 
 
@@ -21,7 +21,7 @@ import           System.Metrics.Gauge           as Gauge
 import           System.Metrics.Label           as Label
 
 
-data Handle = Handle
+data MHandle = MHandle
   { hSingleUserC :: C.Counter,
     hAllUsersC   :: C.Counter,
     hCreateUserC :: C.Counter,

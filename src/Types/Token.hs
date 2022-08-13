@@ -25,7 +25,7 @@ import Data.Aeson
     (.=),
   )
 --import qualified Data.ByteString.Lazy as BSL
-import Data.UUID (UUID, fromText, toText)
+import qualified Data.UUID as DU
 import Data.Text
 import GHC.Generics
 import Servant.Auth.Server (FromJWT, ToJWT)
@@ -34,17 +34,17 @@ import Servant.Auth.Server (FromJWT, ToJWT)
 
 -- | For now, the @Token@ is simply a wrapper around a @UUID@, with the
 -- necessary instances to generate a @JWT@ or parse the @UUID@ back out from it.
-newtype Token = Token {unToken :: UUID} deriving (Eq, Read, Show)
+newtype Token = Token {unToken :: DU.UUID} deriving (Eq, Read, Show)
 
 instance FromJSON Token where
   parseJSON = withObject "Token" $ \o -> do
     maybeTok <- o .: "user_uuid"
-    case fromText maybeTok of
-      Nothing -> fail $ "unable to parse field [" <> unpack maybeTok <> "]"
+    case DU.fromText maybeTok of
+      Nothing -> fail $ "unable to parse field [" <> toString maybeTok <> "]"
       Just tok -> pure . Token $ tok
 
 instance ToJSON Token where
-  toJSON (Token tok) = object ["user_uuid" .= toText tok]
+  toJSON (Token tok) = object ["user_uuid" .= DU.toText tok]
 
 instance FromJWT Token
 

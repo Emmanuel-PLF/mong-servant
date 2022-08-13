@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 --{-# LANGUAGE QuasiQuotes #-}
 --{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Types.BCrypt
@@ -23,8 +24,8 @@ import Control.Monad.Except (MonadIO, liftIO)
 --import Control.Monad.Reader (MonadReader, ReaderT, asks)
 import qualified Crypto.KDF.BCrypt as BC
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Text
-import Data.Text.Encoding (decodeUtf8, encodeUtf8)
+--import Data.Text
+--import Data.Text.Encoding (decodeUtf8, encodeUtf8)
 --import Database.Persist.MongoDB (PersistField)
 import Database.Persist.Sql as S
 import Database.Persist.TH ()
@@ -51,8 +52,8 @@ newtype BCrypt = BCrypt
 -- | Produce a hashed output, given some plaintext input.
 hashPassword :: MonadIO m => Text -> m BCrypt
 hashPassword pass =
-   let hash = liftIO $ BC.hashPassword 12 $ encodeUtf8 pass
-   in BCrypt . decodeUtf8 <$> hash
+   let hash = liftIO $ BC.hashPassword 12 $ encodeUtf8 @Text @ByteString pass
+   in BCrypt . decodeUtf8 @Text @ByteString <$> hash
       
 
 -- | Validate that the plaintext is equivalent to a hashed @BCrypt@, log any
@@ -64,9 +65,9 @@ validatePassword ::
   BCrypt ->
   AppT m Bool
 validatePassword pass' hash' = do
-  let pass = encodeUtf8 pass'
-      hash = encodeUtf8 . unBCrypt $ hash'
-      isValid = BC.validatePasswordEither pass hash
+  let pass = encodeUtf8 @Text @ByteString pass'
+      hash = encodeUtf8 @Text @ByteString . unBCrypt $ hash'
+      isValid = BC.validatePasswordEither @ByteString pass hash
   case isValid of
     Left e -> do 
           logDebugNS "validate" "error on validation password" 

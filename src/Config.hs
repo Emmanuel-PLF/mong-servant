@@ -105,7 +105,7 @@ data Config = Config
     configEkgServer :: ThreadId,
     configLogEnv :: LogEnv,
     configPort :: Port,
-    hMetrics :: Handle,
+    hMetrics :: MHandle,
     cookieSettings :: !CookieSettings,
     jwtSettings :: !JWTSettings,
     jwtTimeout :: !NominalDiffTime

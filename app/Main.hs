@@ -1,8 +1,8 @@
 module Main where
 
 import Server (runAppDevel)
-import System.Environment (getArgs, getProgName)
-import System.Exit (exitFailure)
+import System.Environment (getProgName)
+--import System.Exit (exitFailure)
 import qualified System.IO as IO
 
 -- | The 'main' function gathers the required environment information and
@@ -14,5 +14,5 @@ main = do
   case args of
     [configPath] -> runAppDevel configPath
     _ -> do
-      IO.hPutStrLn IO.stderr $ "Usage: " ++ progName ++ " <conf>"
+      IO.hPutStrLn stderr $ "Usage: " ++ progName ++ " <conf>"
       exitFailure
