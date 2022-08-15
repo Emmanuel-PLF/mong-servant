@@ -18,18 +18,22 @@
 module Database where
 
 --import Control.Applicative (empty, (<|>))
-import qualified Config as C
+import Config qualified as C
+
 --import Control.Monad.Reader (MonadIO, MonadReader, asks, liftIO)
 import Data.Aeson as A
+
 --import Data.Text (Text)
 --import qualified Data.Text as T
 --import Data.Time (UTCTime)
 import Data.UUID (UUID)
+
 --import Database.Persist.Sql (SqlPersistT, runMigration, runSqlPool)
 
 import Database.Persist.MongoDB
 import Database.Persist.TH
 import Language.Haskell.TH
+
 --import Say (say)
 import Types.BCrypt (BCrypt)
 import Types.Instances ()
@@ -38,8 +42,8 @@ import Types.User ()
 
 let mongoSettings = mkPersistSettings (ConT ''MongoContext) --{mpsGeneric = False}
  in share
-      [mkPersist mongoSettings]
-      [persistLowerCase|
+        [mkPersist mongoSettings]
+        [persistLowerCase|
 User json
     name  Text
     email Text
@@ -78,33 +82,33 @@ type DB a = Action IO a
 --  runMigration migrateAll
 --  liftIO $ say "already run"
 
-
 data Config = Config
-  { cDBName :: Maybe Text,
-    cHostname :: Maybe Text
-  } deriving (Show)
+    { cDBName :: Maybe Text
+    , cHostname :: Maybe Text
+    }
+    deriving (Show)
 
 instance Monoid Config where
-  mempty =
-    Config
-      { cDBName = empty,
-        cHostname = empty
-      }
+    mempty =
+        Config
+            { cDBName = empty
+            , cHostname = empty
+            }
 
 instance Semigroup Config where
-  l <> r =
-    Config
-      { cDBName = cDBName l <|> cDBName r,
-        cHostname = cHostname l <|> cHostname r
-      }
+    l <> r =
+        Config
+            { cDBName = cDBName l <|> cDBName r
+            , cHostname = cHostname l <|> cHostname r
+            }
 
 instance A.FromJSON Config where
-  parseJSON = A.withObject "FromJSON Mongo-Servant.Database.Config" $ \o ->
-    Config
-      <$> o A..:? "dbname"
-      <*> o A..:? "hostname"
+    parseJSON = A.withObject "FromJSON Mongo-Servant.Database.Config" $ \o ->
+        Config
+            <$> o A..:? "dbname"
+            <*> o A..:? "hostname"
 
 runDb :: (MonadReader C.Config m, MonadIO m) => DB b -> m b
 runDb query = do
-  pool <- asks C.configPool
-  liftIO $ runMongoDBPool master query pool
+    pool <- asks C.configPool
+    liftIO $ runMongoDBPool master query pool

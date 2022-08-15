@@ -46,7 +46,9 @@ executable perservant
         Haskell2010
     ghc-options:
         -threaded -rtsopts -with-rtsopts=-T -fwarn-unused-imports
-    default-extensions: OverloadedStrings
+    default-extensions: 
+      OverloadedStrings
+      ImportQualifiedPost
 
 
 library
@@ -85,6 +87,7 @@ library
       , fast-logger
       , foreign-store
       , hashable
+      , hedis
       , katip >= 0.5.0.2 
       , microlens
       , microlens-th
@@ -126,7 +129,9 @@ library
       , relude  
     ghc-options:
         -fwarn-unused-imports
-    default-extensions: OverloadedStrings
+    default-extensions: 
+      OverloadedStrings
+      ImportQualifiedPost
 
 --test-suite servant-persistent-test
 --    type:

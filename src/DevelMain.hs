@@ -1,43 +1,45 @@
-{-# LANGUAGE OverloadedStrings,TypeApplications #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
--- | Running your app inside GHCi.
---
--- > stack ghci
---
--- To start your app, run:
---
--- > :l DevelMain
--- > DevelMain.update
---
--- You can also call @DevelMain.shutdown@ to stop the app
---
--- There is more information about this approach,
--- on the wiki: https://github.com/yesodweb/yesod/wiki/ghci
+{- | Running your app inside GHCi.
 
+ > stack ghci
+
+ To start your app, run:
+
+ > :l DevelMain
+ > DevelMain.update
+
+ You can also call @DevelMain.shutdown@ to stop the app
+
+ There is more information about this approach,
+ on the wiki: https://github.com/yesodweb/yesod/wiki/ghci
+-}
 module DevelMain where
 
 import Prelude
 
-import Data.Typeable
-import qualified Data.Text as Text
-import Data.Text (Text)
-import System.IO
 import Control.Concurrent
 import Control.Exception.Safe
 import Control.Monad
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import Foreign.Store (Store(..), lookupStore, readStore, storeAction, withStore)
+import Data.Monoid
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Typeable
+import Foreign.Store (Store (..), lookupStore, readStore, storeAction, withStore)
 import GHC.Word (Word32)
 import Init (runAppDevel)
 import Say
-import Data.Monoid
+import System.IO
 
 tshow :: Show a => a -> Text
 tshow = Text.pack . show
 
--- | Start or restart the server.
--- newStore is from foreign-store.
--- A Store holds onto some data across ghci reloads
+{- | Start or restart the server.
+ newStore is from foreign-store.
+ A Store holds onto some data across ghci reloads
+-}
 update :: IO ()
 update = do
     hSetBuffering stdout NoBuffering
@@ -50,7 +52,7 @@ update = do
             tid <- start done
             _ <- storeAction (Store tidStoreNum) (newIORef tid)
             return ()
-        Just tidStore ->  do
+        Just tidStore -> do
             say "restarting app..."
             restartAppInNewThread tidStore
   where
@@ -66,46 +68,44 @@ update = do
         withStore doneStore takeMVar
         readStore doneStore >>= start
 
-
-    -- | Start the server in a separate thread.
-    start :: MVar () -- ^ Written to when the thread is killed.
-          -> IO ThreadId
+    start ::
+        MVar () ->
+        IO ThreadId
     start done =
-            myThreadId <* (do
-                say "in forkFinally"
-                runAppDevel `catch` \(SomeException e) -> do
-                    say "!!! exception in runAppDevel !!!"
-                    say $ "X    exception type: " <> tshow (typeOf e)
-                    say $ "X    exception     : " <> tshow e
-                say "runAppDevel terminated"
-            )
-            `catch`
-            (\(SomeException err) -> do
-                say "finally action"
-                hFlush stdout
-                hFlush stderr
-                putMVar done ()
-                say $ "Got Exception: " <> tshow err
-                throwIO err
-            )
-            `finally`
-            (do
-                say "finally action"
-                hFlush stdout
-                hFlush stderr
-                putMVar done ()
-                )
+        myThreadId
+            <* ( do
+                    say "in forkFinally"
+                    runAppDevel `catch` \(SomeException e) -> do
+                        say "!!! exception in runAppDevel !!!"
+                        say $ "X    exception type: " <> tshow (typeOf e)
+                        say $ "X    exception     : " <> tshow e
+                    say "runAppDevel terminated"
+               )
+            `catch` ( \(SomeException err) -> do
+                        say "finally action"
+                        hFlush stdout
+                        hFlush stderr
+                        putMVar done ()
+                        say $ "Got Exception: " <> tshow err
+                        throwIO err
+                    )
+            `finally` ( do
+                            say "finally action"
+                            hFlush stdout
+                            hFlush stderr
+                            putMVar done ()
+                      )
 
 -- | kill the server
 shutdown :: IO ()
 shutdown = do
     mtidStore <- lookupStore tidStoreNum
     case mtidStore of
-      -- no server running
-      Nothing -> say "no app running"
-      Just tidStore -> do
-          withStore tidStore $ readIORef >=> killThread
-          say "App is shutdown"
+        -- no server running
+        Nothing -> say "no app running"
+        Just tidStore -> do
+            withStore tidStore $ readIORef >=> killThread
+            say "App is shutdown"
 
 tidStoreNum :: Word32
 tidStoreNum = 1

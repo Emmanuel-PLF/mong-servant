@@ -14,22 +14,26 @@ module Query.User where
 --import Data.Maybe (listToMaybe)
 --import Data.Text (Text)
 import Data.Time.Clock (getCurrentTime)
+
 --import Data.UUID (UUID)
 import Data.UUID.V4 (nextRandom)
+
 --mport Database.Persist
 --  ( Entity (Entity),
-    --PersistStoreWrite (insert),
+--PersistStoreWrite (insert),
 --  )
-import Database.Persist.MongoDB 
- (
-    Entity (..),
-    --PersistQueryRead (selectFirst),
-    --selectList,
-   -- (==.)
- )
+
+--PersistQueryRead (selectFirst),
+--selectList,
+-- (==.)
+
 import Database.Persist.Class
+import Database.Persist.MongoDB (
+    Entity (..),
+ )
+
 --import Database.Persist.TH ()
-import Database (DB(..), Password (Password), User (User), Address (..))
+import Database (Address (..), DB (..), Password (Password), User (User))
 import Types.BCrypt (hashPassword)
 
 import Types.User
@@ -39,19 +43,19 @@ import Types.User
 -- | Insert a new user into the database.
 insertUser :: Text -> UserResponse -> DB User
 insertUser uHPass (UserResponse uEmail uName uPass uBio uIm uAdd) = do
-  now <- liftIO getCurrentTime
-  newUuid <- liftIO nextRandom
+    now <- liftIO getCurrentTime
+    newUuid <- liftIO nextRandom
 
-  hashedPw <- hashPassword uHPass
-  (Entity userKey user) <- insertEntity $ User uName uEmail uBio Nothing (uAdd >>= convUserAddressDBAddress) newUuid
-  _ <- insert $ Password hashedPw userKey
-  pure user
-
+    hashedPw <- hashPassword uHPass
+    (Entity userKey user) <- insertEntity $ User uName uEmail uBio Nothing (uAdd >>= convUserAddressDBAddress) newUuid
+    _ <- insert $ Password hashedPw userKey
+    pure user
 
 -- | ConvertUserResponseAddress to Address DB
 convUserAddressDBAddress :: UserAddress -> Maybe Address
-convUserAddressDBAddress (UserAddress f s z) = 
-  Just $ Address f s z  
+convUserAddressDBAddress (UserAddress f s z) =
+    Just $ Address f s z
+
 --------------------------------------------------------------------------------
 --getAllUsers :: DB [User]
 --getAllUsers = do
