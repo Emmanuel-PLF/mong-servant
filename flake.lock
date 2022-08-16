@@ -3,40 +3,52 @@
     "ekg-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1660509108,
-        "narHash": "sha256-dSr5sxTY3i67uLP+BU7hpZOqvsdbKrjdfeN+4EHkKZQ=",
-        "path": "/home/manu/build/hsnix/mong-servant/ekg-core",
-        "type": "path"
+        "lastModified": 1640285654,
+        "narHash": "sha256-5hdk6OA6fmXFYxt69mwlFDzCd/sxQIm3kc+NreJBy+s=",
+        "owner": "hasura",
+        "repo": "ekg-core",
+        "rev": "b0cdc337ca2a52e392d427916ba3e28246b396c0",
+        "type": "github"
       },
       "original": {
-        "path": "/home/manu/build/hsnix/mong-servant/ekg-core",
-        "type": "path"
+        "owner": "hasura",
+        "ref": "master",
+        "repo": "ekg-core",
+        "type": "github"
       }
     },
     "ekg-json": {
       "flake": false,
       "locked": {
-        "lastModified": 1660509109,
-        "narHash": "sha256-IEMTYit7eZLJ5u7CDVaVCcvcd3I/ocmfX3LFzUxnkdM=",
-        "path": "/home/manu/build/hsnix/mong-servant/ekg-json",
-        "type": "path"
+        "lastModified": 1656594608,
+        "narHash": "sha256-V+doY0SjMqouPt6azS63hAlGFtr9m4fs0K6ghEF6JTQ=",
+        "owner": "hasura",
+        "repo": "ekg-json",
+        "rev": "1fab6837e1dd98317a3c2f5bf9deedf4dfcac51b",
+        "type": "github"
       },
       "original": {
-        "path": "/home/manu/build/hsnix/mong-servant/ekg-json",
-        "type": "path"
+        "owner": "hasura",
+        "ref": "master",
+        "repo": "ekg-json",
+        "type": "github"
       }
     },
     "ekg-wai": {
       "flake": false,
       "locked": {
-        "lastModified": 1660509109,
-        "narHash": "sha256-uhYh8kT+iu9KTyoLMusg3V7QiT/gaYpfCOsJha0ViSc=",
-        "path": "/home/manu/build/hsnix/mong-servant/ekg-wai",
-        "type": "path"
+        "lastModified": 1640285624,
+        "narHash": "sha256-6RNVJGDKFtc/dBJbfu/wHP17Hch82EXZa2ghEZz3KT4=",
+        "owner": "hasura",
+        "repo": "ekg-wai",
+        "rev": "2ac8e4cc43d6f6017999280a03ff8c337a1dab5e",
+        "type": "github"
       },
       "original": {
-        "path": "/home/manu/build/hsnix/mong-servant/ekg-wai",
-        "type": "path"
+        "owner": "hasura",
+        "ref": "master",
+        "repo": "ekg-wai",
+        "type": "github"
       }
     },
     "flake-parts": {

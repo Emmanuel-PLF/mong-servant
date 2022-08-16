@@ -19,9 +19,9 @@ import Control.Monad.Except (MonadError)
 
 --import Control.Monad.IO.Class (MonadIO )
 import Control.Monad.Logger (MonadLogger (..))
-import Metrics.Metrics
-import System.Metrics
-
+import Metrics.Metrics ( MHandle )
+import System.Metrics ( Store, AllMetrics )
+import Database.Redis
 --import Control.Monad.Reader (MonadReader, ReaderT, asks)
 import Data.Aeson qualified as A
 import Data.Text qualified as T
@@ -115,6 +115,7 @@ data Config = Config
     , cookieSettings :: !CookieSettings
     , jwtSettings :: !JWTSettings
     , jwtTimeout :: !NominalDiffTime
+    , redisConn :: ConnectInfo
     }
 
 --instance Monad m => MonadMetrics (AppT m) where

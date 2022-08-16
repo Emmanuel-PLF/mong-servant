@@ -63,6 +63,7 @@ import Types.User
 import Metrics.Metrics as M
 import System.Metrics qualified as SM
 import System.Metrics.Counter
+import Database.Redis
 
 --import Servant.JS
 --import System.FilePath
@@ -189,7 +190,9 @@ login userLogin = do
                         utok <- mkTokenResponse tok
                         settings <- asks jwtSettings
                         cooksett <- asks cookieSettings
+                        redisconf <- asks redisConn
                         mAppCook <- liftIO $ acceptLogin cooksett settings tok
+                        liftIO $ cacheUser redisconf 12345 person
                         case mAppCook of
                             Nothing -> do throwError err401
                             Just ac -> do
@@ -274,6 +277,16 @@ mkUserResponse
 convAddressDBUserAddress :: D.Address -> Maybe UserAddress
 convAddressDBUserAddress (D.Address f s z) =
     Just $ UserAddress f s z
+
+runRedisAction :: ConnectInfo -> Redis a -> IO a
+runRedisAction redisInfo action = do
+  connection <- connect redisInfo
+  runRedis connection action
+
+cacheUser :: ConnectInfo -> Int64 -> D.User -> IO ()
+cacheUser redisInfo uids user = runRedisAction redisInfo $ void $ 
+  setex (encodeUtf8 @Text @ByteString . show $ uids) 3600 (encodeUtf8 @Text @ByteString . show $ user)
+
 
 --generateJavaScript :: IO ()
 --generateJavaScript =

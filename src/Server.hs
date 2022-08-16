@@ -54,6 +54,8 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Servant.Auth.Server
 import Servant.Server
 import System.Remote.Monitoring.Wai (forkServer, serverMetricStore, serverThreadId)
+import Config (Config(redisConn))
+import Database.Redis (defaultConnectInfo)
 
 data ConfigApp = ConfigApp
     { cLogger :: L.Config
@@ -147,7 +149,7 @@ withConfig f action = do
         myKey <- generateKey
         say "got pool "
         bracket (forkServer "localhost" 8083) (\x -> say "closing ekg" >> do killThread $ serverThreadId x) $ \ekgServer -> do
-            say "forked ekg server"
+            say "forked ekg server ooo"
             let store = serverMetricStore ekgServer
 
                 --  waiMetrics <- registerWaiMetrics store `onException` say "exception in registerWaiMetrics"
@@ -172,6 +174,7 @@ withConfig f action = do
                             , cookieSettings = cookieCfg
                             , jwtSettings = jwtCfg
                             , jwtTimeout = 1001
+                            , redisConn = defaultConnectInfo
                             }
                 )
 

@@ -7,15 +7,15 @@
     haskell-flake.url = "github:srid/haskell-flake";
     ekg-core = {
       flake = false;
-      url = "path:/home/manu/build/hsnix/mong-servant/ekg-core"; #"github:hasura/ekg-core/master";
+      url = "github:hasura/ekg-core/master";
     };
     ekg-json = {
       flake = false;
-      url = "path:/home/manu/build/hsnix/mong-servant/ekg-json";
+      url = "github:hasura/ekg-json/master";
     };
     ekg-wai = {
       flake = false;
-      url = "path:/home/manu/build/hsnix/mong-servant/ekg-wai";
+      url = "github:hasura/ekg-wai/master";
     };
   };
   outputs = inputs@{ self, nixpkgs, flake-parts, haskell-flake, ... }:
@@ -45,14 +45,14 @@
                 fourmolu
                 ghcid;
             };
-            modifier = drv: with pkgs.haskell.lib; dontCheck drv; # test/type-errors requires 9.2 
-            #  modifier = (t.flip t.pipe) [
-            #    hl.dontHaddock
-            #    hl.enableStaticLibraries
-            #    hl.justStaticExecutables
-            #    hl.disableLibraryProfiling
-            #    hl.disableExecutableProfiling
-            #  ];
+            #modifier = drv: with pkgs.haskell.lib; dontCheck drv; # test/type-errors requires 9.2 
+              modifier = (t.flip t.pipe) [
+                hl.dontHaddock
+                hl.enableStaticLibraries
+                hl.justStaticExecutables
+                hl.disableLibraryProfiling
+                hl.disableExecutableProfiling
+              ];
               source-overrides = {
                inherit (inputs)
                 ekg-core
