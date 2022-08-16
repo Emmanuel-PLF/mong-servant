@@ -35,7 +35,7 @@ import Control.Concurrent (killThread)
 --import System.Metrics
 --import Control.Monad.Trans.Class (MonadTrans (lift))
 
-import Control.Exception.Safe
+import Control.Exception.Safe ( bracket, finally, onException )
 import Data.Aeson qualified as A
 import Database.MongoDB.Connection (PortID (PortNumber))
 import Database.Persist.MongoDB (
@@ -52,7 +52,12 @@ import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp (defaultSettings, runSettings, setPort, setTimeout)
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Servant.Auth.Server
-import Servant.Server
+    ( generateKey,
+      defaultCookieSettings,
+      defaultJWTSettings,
+      IsSecure(NotSecure),
+      CookieSettings(cookieIsSecure) )
+import Servant.Server ( Context((:.), EmptyContext), Application )
 import System.Remote.Monitoring.Wai (forkServer, serverMetricStore, serverThreadId)
 import Config (Config(redisConn))
 import Database.Redis (defaultConnectInfo)
