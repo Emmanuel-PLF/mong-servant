@@ -17,6 +17,7 @@ module Api.Users where
 import Config (AppT (..), Config (..))
 
 --import Control.Monad.Except (MonadIO)
+--import Control.Monad.Except (MonadIO)
 import Control.Monad.Logger (logDebugNS, logErrorNS, logInfoNS, logWarnNS)
 
 --import Control.Monad.Reader (asks, liftIO)
@@ -27,7 +28,7 @@ import Database.Persist.MongoDB (
     Entity (..),
     PersistQueryRead (selectFirst),
     selectList,
-    (==.),
+    (==.), keyToOid
  )
 
 -- Servant imports.
@@ -64,7 +65,8 @@ import Metrics.Metrics as M
 import System.Metrics qualified as SM
 import System.Metrics.Counter
 import Database.Redis
-
+import Data.Bson
+--import Codec.CBOR.Magic (word64ToInt, intToInt64)
 --import Servant.JS
 --import System.FilePath
 
@@ -192,7 +194,9 @@ login userLogin = do
                         cooksett <- asks cookieSettings
                         redisconf <- asks redisConn
                         mAppCook <- liftIO $ acceptLogin cooksett settings tok
-                        liftIO $ cacheUser redisconf 12345 person
+                        let objUs = keyToOid personId
+                        liftIO $ cacheUser redisconf objUs person
+                        logDebugNS "login" (show objUs)
                         case mAppCook of
                             Nothing -> do throwError err401
                             Just ac -> do
@@ -283,10 +287,18 @@ runRedisAction redisInfo action = do
   connection <- connect redisInfo
   runRedis connection action
 
-cacheUser :: ConnectInfo -> Int64 -> D.User -> IO ()
+cacheUser :: ConnectInfo -> ObjectId -> D.User -> IO ()
 cacheUser redisInfo uids user = runRedisAction redisInfo $ void $ 
   setex (encodeUtf8 @Text @ByteString . show $ uids) 3600 (encodeUtf8 @Text @ByteString . show $ user)
 
+-- | return an Int64
+--getIntWithOid :: ObjectId -> Int64
+--getIntWithOid ob = 
+--    case cast' (val ob) of
+--        Just (Oid ts oth) -> case word64ToInt oth of
+--                                Just i -> intToInt64 i 
+ --                               Nothing -> 0
+--        Nothing -> 0
 
 --generateJavaScript :: IO ()
 --generateJavaScript =

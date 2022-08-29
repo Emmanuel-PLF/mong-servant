@@ -8,16 +8,24 @@ module Query.User where
 
 import Data.Time.Clock (getCurrentTime)
 import Data.UUID.V4 (nextRandom)
-import Database (Address (..), DB (..), Password (Password), User (User))
-import Database.Persist.Class
-  ( PersistStoreWrite (insert),
-    insertEntity,
-  )
-import Database.Persist.MongoDB
-  ( Entity (..),
-  )
+import Database (
+  Address (..),
+  DB (..),
+  Password (Password),
+  User (User),
+ )
+import Database.Persist.Class (
+  PersistStoreWrite (insert),
+  insertEntity,
+ )
+import Database.Persist.MongoDB (
+  Entity (..),
+ )
 import Types.BCrypt (hashPassword)
-import Types.User
+import Types.User (
+  UserAddress (UserAddress),
+  UserResponse (UserResponse),
+ )
 
 --------------------------------------------------------------------------------
 

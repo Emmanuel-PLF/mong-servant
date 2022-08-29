@@ -78,6 +78,8 @@ library
       , aeson 
       , aeson-pretty
       , bytestring
+      , bson
+      --, cborg
       , clock
       , containers
       , cryptonite

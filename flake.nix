@@ -1,7 +1,8 @@
 {
   description = "mongo-servant flake";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/6141b8932a5cf376fe18fcd368cecd9ad946cb68";
+    #nixpkgs.url = "github:nixos/nixpkgs/6141b8932a5cf376fe18fcd368cecd9ad946cb68";
+    nixpkgs.url = "github:nixos/nixpkgs/324c8aaf25b2f2027af7798e5582ce3040a793b6";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs.follows = "nixpkgs";
     haskell-flake.url = "github:srid/haskell-flake";
